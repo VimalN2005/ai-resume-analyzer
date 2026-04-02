@@ -1,0 +1,177 @@
+{% extends "analyzer/base.html" %}
+{% block title %}Results — ResumeAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold mb-0" style="color:#1e1b4b;">Analysis Results</h2>
+        <small class="text-muted">{{ analysis.job_role }} &bull; {{ analysis.created_at|date:"d M Y, H:i" }}</small>
+      </div>
+      <a href="{% url 'home' %}" class="btn btn-outline-primary">
+        <i class="bi bi-plus-circle me-1"></i>New Analysis
+      </a>
+    </div>
+
+    <!-- Score Cards Row -->
+    <div class="row g-3 mb-4">
+
+      <!-- ATS Score -->
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100">
+          <div class="ats-circle
+            {% if analysis.ats_score >= 80 %}border-success text-success
+            {% elif analysis.ats_score >= 60 %}border-primary text-primary
+            {% elif analysis.ats_score >= 40 %}border-warning text-warning
+            {% else %}border-danger text-danger{% endif %}">
+            <span>{{ analysis.ats_score|floatformat:0 }}</span>
+            <span style="font-size:0.8rem;font-weight:500;">/ 100</span>
+          </div>
+          <div class="fw-bold mt-3">ATS Score</div>
+          <span class="badge bg-{{ grade_color }} mt-1">{{ grade }}</span>
+        </div>
+      </div>
+
+      <!-- Match % -->
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100">
+          <div class="ats-circle border-info text-info">
+            <span>{{ analysis.match_percentage|floatformat:0 }}</span>
+            <span style="font-size:0.8rem;font-weight:500;">%</span>
+          </div>
+          <div class="fw-bold mt-3">Keyword Match</div>
+          <small class="text-muted">Skills overlap with JD</small>
+        </div>
+      </div>
+
+      <!-- Word Count & Stats -->
+      <div class="col-md-4">
+        <div class="card p-4 h-100">
+          <h6 class="fw-bold text-muted mb-3">Resume Stats</h6>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Word Count</span>
+            <strong>{{ analysis.word_count }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Matched Skills</span>
+            <strong class="text-success">{{ analysis.matched_keywords|length }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Missing Skills</span>
+            <strong class="text-danger">{{ analysis.missing_keywords|length }}</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Target Role</span>
+            <strong class="text-truncate ms-2" style="max-width:120px;" title="{{ analysis.job_role }}">
+              {{ analysis.job_role }}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATS Progress Bar -->
+    <div class="card p-4 mb-4">
+      <h6 class="fw-bold mb-3">ATS Score Breakdown</h6>
+      <div class="mb-2 d-flex justify-content-between">
+        <small class="text-muted">Overall ATS Score</small>
+        <small class="fw-bold">{{ analysis.ats_score|floatformat:1 }}%</small>
+      </div>
+      <div class="progress mb-3" style="height:12px;border-radius:999px;">
+        <div class="progress-bar bg-{{ grade_color }}"
+             style="width:{{ analysis.ats_score }}%;border-radius:999px;transition:width 1s ease;">
+        </div>
+      </div>
+
+      <div class="mb-2 d-flex justify-content-between">
+        <small class="text-muted">Keyword Match</small>
+        <small class="fw-bold">{{ analysis.match_percentage|floatformat:1 }}%</small>
+      </div>
+      <div class="progress" style="height:12px;border-radius:999px;">
+        <div class="progress-bar bg-info"
+             style="width:{{ analysis.match_percentage }}%;border-radius:999px;transition:width 1s ease;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Keywords Row -->
+    <div class="row g-3 mb-4">
+
+      <!-- Matched Skills -->
+      <div class="col-md-6">
+        <div class="card p-4 h-100">
+          <h6 class="fw-bold mb-3">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Matched Skills ({{ analysis.matched_keywords|length }})
+          </h6>
+          {% if analysis.matched_keywords %}
+            {% for skill in analysis.matched_keywords %}
+              <span class="badge-skill badge-matched">{{ skill }}</span>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted small mb-0">No common skills found. Try adding more keywords.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Missing Skills -->
+      <div class="col-md-6">
+        <div class="card p-4 h-100">
+          <h6 class="fw-bold mb-3">
+            <i class="bi bi-x-circle-fill text-danger me-2"></i>
+            Missing Skills ({{ analysis.missing_keywords|length }})
+          </h6>
+          {% if analysis.missing_keywords %}
+            {% for skill in analysis.missing_keywords %}
+              <span class="badge-skill badge-missing">{{ skill }}</span>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted small mb-0">🎉 No critical skills missing!</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="card p-4 mb-4" style="background:linear-gradient(135deg,#f0f4ff,#fff);">
+      <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Tips to Improve Your Score</h6>
+      <ul class="mb-0 text-muted small">
+        {% if analysis.ats_score < 60 %}
+        <li class="mb-1">Your ATS score is below 60 — add more keywords from the JD directly into your resume.</li>
+        {% endif %}
+        {% if analysis.missing_keywords %}
+        <li class="mb-1">Add these missing skills if you have them: <strong>{{ analysis.missing_keywords|slice:":5"|join:", " }}</strong>{% if analysis.missing_keywords|length > 5 %} and more{% endif %}.</li>
+        {% endif %}
+        {% if analysis.word_count < 300 %}
+        <li class="mb-1">Your resume seems short ({{ analysis.word_count }} words). Aim for 400–600 words.</li>
+        {% elif analysis.word_count > 800 %}
+        <li class="mb-1">Your resume is long ({{ analysis.word_count }} words). Consider keeping it to 1 page.</li>
+        {% endif %}
+        <li class="mb-1">Use exact phrases from the job description — ATS systems match keywords literally.</li>
+        <li>Quantify achievements with numbers (e.g., "Improved accuracy by 15%").</li>
+      </ul>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex gap-3 flex-wrap">
+      <a href="{% url 'home' %}" class="btn btn-primary">
+        <i class="bi bi-arrow-repeat me-1"></i>Analyze Another Resume
+      </a>
+      <a href="{% url 'history' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-clock-history me-1"></i>View History
+      </a>
+      <form method="POST" action="{% url 'delete_analysis' analysis.pk %}" class="d-inline"
+            onsubmit="return confirm('Delete this analysis?')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">
+          <i class="bi bi-trash me-1"></i>Delete
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "analyzer/base.html" %}
+{% block title %}Analyze Resume — ResumeAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- Hero -->
+    <div class="text-center mb-5 mt-2">
+      <div style="font-size:3.5rem;">🤖</div>
+      <h1 class="fw-bold mt-2" style="color:#1e1b4b;">AI Resume Analyzer</h1>
+      <p class="text-muted fs-5">Upload your resume & paste a job description — get your ATS score instantly.</p>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="card p-4 p-md-5">
+      <form method="POST" action="{% url 'analyze' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Resume Upload -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i>Upload Resume (PDF)
+          </label>
+          {{ form.resume_file }}
+          {% if form.resume_file.errors %}
+            <div class="text-danger small mt-1">{{ form.resume_file.errors }}</div>
+          {% endif %}
+          <div class="form-text">Max 5 MB. PDF format only.</div>
+        </div>
+
+        <!-- Job Role -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-briefcase-fill text-primary me-2"></i>Target Job Role
+          </label>
+          {{ form.job_role }}
+          {% if form.job_role.errors %}
+            <div class="text-danger small mt-1">{{ form.job_role.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Job Description -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-text-paragraph text-success me-2"></i>Job Description
+          </label>
+          {{ form.job_description }}
+          {% if form.job_description.errors %}
+            <div class="text-danger small mt-1">{{ form.job_description.errors }}</div>
+          {% endif %}
+          <div class="form-text">Paste the full JD for better keyword matching accuracy.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-3 fs-5">
+          <i class="bi bi-lightning-charge-fill me-2"></i>Analyze My Resume
+        </button>
+      </form>
+    </div>
+
+    <!-- How it works -->
+    <div class="row text-center mt-5 g-3">
+      {% for icon, title, desc in steps %}
+      {% endfor %}
+      <div class="col-md-4">
+        <div class="card p-3">
+          <div style="font-size:2rem;">📄</div>
+          <div class="fw-bold mt-2">Upload PDF</div>
+          <small class="text-muted">We extract text using PyMuPDF</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3">
+          <div style="font-size:2rem;">🧠</div>
+          <div class="fw-bold mt-2">NLP Analysis</div>
+          <small class="text-muted">spaCy + TF-IDF cosine similarity</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3">
+          <div style="font-size:2rem;">📊</div>
+          <div class="fw-bold mt-2">Get ATS Score</div>
+          <small class="text-muted">Keyword gaps + match percentage</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Show loading spinner on submit
+  document.querySelector("form").addEventListener("submit", function() {
+    const btn = this.querySelector("button[type=submit]");
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+    btn.disabled  = true;
+  });
+</script>
+{% endblock %}

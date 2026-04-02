@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}AI Resume Analyzer{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card-shadow: 0 4px 24px rgba(79,70,229,0.08);
+    }
+
+    body { background-color: var(--bg); font-family: 'Segoe UI', sans-serif; }
+
+    .navbar {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 2px 12px rgba(79,70,229,0.3);
+    }
+    .navbar-brand { font-weight: 700; font-size: 1.3rem; letter-spacing: 0.5px; }
+
+    .card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 10px 24px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+    }
+
+    .badge-skill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin: 3px;
+    }
+    .badge-matched { background: #d1fae5; color: #065f46; }
+    .badge-missing { background: #fee2e2; color: #991b1b; }
+
+    .ats-circle {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800;
+      margin: 0 auto;
+      border: 6px solid;
+    }
+
+    footer { background: #1e1b4b; color: #a5b4fc; padding: 20px 0; margin-top: 60px; }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">
+        <i class="bi bi-file-earmark-person-fill me-2"></i>ResumeAI
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-center gap-1">
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'home' %}"><i class="bi bi-house me-1"></i>Analyze</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'history' %}"><i class="bi bi-clock-history me-1"></i>History</a>
+            </li>
+            <li class="nav-item ms-2">
+              <span class="text-white opacity-75 small">Hi, {{ user.username }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-sm btn-outline-light ms-2" href="{% url 'logout' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+            <li class="nav-item"><a class="btn btn-sm btn-light ms-2 text-primary fw-bold" href="{% url 'register' %}">Sign Up</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Messages -->
+  <div class="container mt-3">
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Page Content -->
+  <main class="container py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container text-center">
+      <small>Built by <strong>Vimal Sahani</strong> — IIIT Bhopal &nbsp;|&nbsp;
+        <a href="https://github.com/VimalN2005" class="text-light">GitHub</a>
+      </small>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
